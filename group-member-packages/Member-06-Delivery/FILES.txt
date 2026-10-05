@@ -1,0 +1,22 @@
+# FILES.txt -- Member 06 -- Delivery Management
+# Total: 19 files
+
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/controller/DeliveryController.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/dto/DeliveryAssignRequest.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/dto/DeliveryDto.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/dto/DeliveryStatusHistoryDto.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/dto/DeliveryStatusUpdateRequest.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/entity/Delivery.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/entity/DeliveryStatus.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/entity/DeliveryStatusHistory.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/repository/DeliveryRepository.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/repository/DeliveryStatusHistoryRepository.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/service/DeliveryService.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/state/DeliveredDeliveryState.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/state/DeliveryContext.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/state/DeliveryState.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/state/FailedDeliveryState.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/state/OutForDeliveryState.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/delivery/state/PendingDeliveryState.java
+frontend/src/pages/deliveries/DeliveryManagement.jsx
+frontend/src/services/deliveryService.js

@@ -1,0 +1,37 @@
+# FILES.txt -- Member 02 -- Inventory Management
+# Total: 34 files
+
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/controller/CategoryController.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/controller/ManufacturerController.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/controller/ProductController.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/dto/CategoryDto.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/dto/CategoryRequest.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/dto/ManufacturerDto.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/dto/ManufacturerRequest.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/dto/ProductBatchDto.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/dto/ProductBatchRequest.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/dto/ProductDto.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/dto/ProductRequest.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/dto/StockAdjustmentRequest.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/entity/Category.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/entity/Manufacturer.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/entity/Product.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/entity/ProductBatch.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/entity/StockMovement.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/entity/StockMovementType.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/observer/BatchExpiryAlertObserver.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/observer/LowStockAlertObserver.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/observer/StockEvent.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/observer/StockObserver.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/observer/StockSubject.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/repository/CategoryRepository.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/repository/ManufacturerRepository.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/repository/ProductBatchRepository.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/repository/ProductRepository.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/repository/StockMovementRepository.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/service/CategoryService.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/service/ManufacturerService.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/inventory/service/ProductService.java
+backend/pharmacy-backend/src/test/java/com/pharmacy/inventory/InventoryStockIntegrationTest.java
+frontend/src/pages/inventory/InventoryManagement.jsx
+frontend/src/services/inventoryService.js
