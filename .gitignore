@@ -1,0 +1,52 @@
+﻿# ── Dependencies ──────────────────────────────────────────────────────────────
+node_modules/
+package-lock.json
+
+# ── Build outputs ─────────────────────────────────────────────────────────────
+target/
+dist/
+build/
+out/
+
+# ── Environment / Secrets ─────────────────────────────────────────────────────
+.env
+.env.*
+*.env
+application-local.properties
+application-secret.properties
+
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── IDE / Editor ──────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.project
+.classpath
+.settings/
+
+# ── OS ────────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+
+# ── Java ──────────────────────────────────────────────────────────────────────
+*.class
+*.jar
+*.war
+*.ear
+hs_err_pid*
+
+# ── Uploads / Generated files ─────────────────────────────────────────────────
+uploads/
+frontend-files.txt
+
+# ── Screenshots / Binary assets not needed in repo ────────────────────────────
+screenshots/
+*.png
+*.pdf
+*.jpg
+*.jpeg
