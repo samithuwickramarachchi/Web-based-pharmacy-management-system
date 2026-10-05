@@ -1,0 +1,20 @@
+# FILES.txt -- Member 05 -- Discount and Promotion Management
+# Total: 17 files
+
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/controller/PromotionController.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/dto/CouponValidateRequest.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/dto/CouponValidateResponse.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/dto/PromotionDto.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/dto/PromotionRequest.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/entity/DiscountType.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/entity/Promotion.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/entity/PromotionUsage.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/repository/PromotionRepository.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/repository/PromotionUsageRepository.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/service/PromotionService.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/strategy/DiscountContext.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/strategy/DiscountStrategy.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/strategy/FixedAmountDiscountStrategy.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/promotion/strategy/PercentageDiscountStrategy.java
+frontend/src/pages/promotions/PromotionManagement.jsx
+frontend/src/services/promotionService.js

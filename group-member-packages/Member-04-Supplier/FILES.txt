@@ -1,0 +1,29 @@
+# FILES.txt -- Member 04 -- Supplier Management
+# Total: 26 files
+
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/controller/PurchaseOrderController.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/controller/SupplierController.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/dto/PurchaseOrderDto.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/dto/PurchaseOrderItemDto.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/dto/PurchaseOrderItemRequest.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/dto/PurchaseOrderRequest.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/dto/ReceiveStockItemRequest.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/dto/ReceiveStockRequest.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/dto/SupplierDto.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/dto/SupplierRequest.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/entity/PurchaseOrder.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/entity/PurchaseOrderItem.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/entity/PurchaseOrderStatus.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/entity/Supplier.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/factory/BulkPurchaseOrderFactory.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/factory/PurchaseOrderFactory.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/factory/PurchaseOrderFactoryProvider.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/factory/StandardPurchaseOrderFactory.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/factory/UrgentPurchaseOrderFactory.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/repository/PurchaseOrderItemRepository.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/repository/PurchaseOrderRepository.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/repository/SupplierRepository.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/service/PurchaseOrderService.java
+backend/pharmacy-backend/src/main/java/com/pharmacy/supplier/service/SupplierService.java
+frontend/src/pages/suppliers/SupplierManagement.jsx
+frontend/src/services/supplierService.js
