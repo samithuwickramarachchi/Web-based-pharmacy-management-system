@@ -18,6 +18,7 @@ import com.pharmacy.promotion.entity.Promotion;
 import com.pharmacy.promotion.entity.PromotionUsage;
 import com.pharmacy.promotion.repository.PromotionRepository;
 import com.pharmacy.promotion.repository.PromotionUsageRepository;
+import com.pharmacy.promotion.service.PromotionService;
 import com.pharmacy.sales.dto.*;
 import com.pharmacy.sales.entity.*;
 import com.pharmacy.sales.repository.CartItemRepository;
@@ -57,6 +58,8 @@ public class OnlineOrderService {
     private final com.pharmacy.sales.billing.OnlineOrderBillingProcessor billingProcessor;
     /** Strategy Pattern: calculates customer loyalty points and tier transitions based on tier rules */
     private final com.pharmacy.customer.strategy.loyalty.LoyaltyTierContext loyaltyTierContext;
+    /** Shared coupon rules (membership tier, usage limits, code lookup). */
+    private final PromotionService promotionService;
 
     public OnlineOrderService(OnlineOrderRepository orderRepository,
                               CustomerRepository customerRepository,
@@ -71,7 +74,8 @@ public class OnlineOrderService {
                               com.pharmacy.sales.strategy.payment.PaymentStrategyProcessor paymentProcessor,
                               com.pharmacy.promotion.strategy.DiscountContext discountContext,
                               com.pharmacy.sales.billing.OnlineOrderBillingProcessor billingProcessor,
-                              com.pharmacy.customer.strategy.loyalty.LoyaltyTierContext loyaltyTierContext) {
+                              com.pharmacy.customer.strategy.loyalty.LoyaltyTierContext loyaltyTierContext,
+                              PromotionService promotionService) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
@@ -86,6 +90,7 @@ public class OnlineOrderService {
         this.discountContext = discountContext;
         this.billingProcessor = billingProcessor;
         this.loyaltyTierContext = loyaltyTierContext;
+        this.promotionService = promotionService;
     }
 
     public OnlineOrderResponse createOrder(OnlineOrderCreateRequest req, Integer customerId) {
@@ -162,6 +167,10 @@ public class OnlineOrderService {
 
         // ─── 3. Promotion Validation ────────────────────────────────────────────────
         Promotion promotion = null;
+        // The storefront sends the coupon code the customer applied; resolve it to its promotion
+        if (req.getPromotionId() == null && req.getCouponCode() != null && !req.getCouponCode().isBlank()) {
+            req.setPromotionId(promotionService.findByCodeOrThrow(req.getCouponCode()).getId());
+        }
         if (req.getPromotionId() != null) {
             promotion = promotionRepository.findById(req.getPromotionId())
                     .orElseThrow(() -> new ResourceNotFoundException("Promotion not found with id " + req.getPromotionId()));
@@ -188,6 +197,8 @@ public class OnlineOrderService {
                     throw new BusinessException("Customer has already reached maximum uses for this promotion");
                 }
             }
+            // Membership-exclusive offers (Silver / Gold) are enforced here as well, not just in the UI
+            promotionService.assertCanUse(promotion, customer, null);
         }
 
         // ─── 4. Build Online Order & Calculate Pricing ──────────────────────────────
@@ -246,7 +257,8 @@ public class OnlineOrderService {
         // Build a temporary request with resolved items for billing computation
         com.pharmacy.sales.dto.OnlineOrderCreateRequest billingReq = new com.pharmacy.sales.dto.OnlineOrderCreateRequest();
         billingReq.setPromotionId(req.getPromotionId());
-        billingReq.setDeliveryAddress(req.getDeliveryAddress() != null ? req.getDeliveryAddress() : "N/A");
+        billingReq.setFulfillmentType(fulfillmentType);
+        billingReq.setDeliveryAddress(order.getDeliveryAddress());
         billingReq.setItems(itemsToOrder);
         com.pharmacy.sales.billing.OrderBillingSummary billing = billingProcessor.computeBilling(billingReq);
 
@@ -408,23 +420,68 @@ public class OnlineOrderService {
                 .collect(Collectors.toList());
     }
 
+    public static final String FULFILLMENT_DELIVERY = "DELIVERY";
+    public static final String FULFILLMENT_STORE_PICKUP = "STORE_PICKUP";
+
+    /** Statuses that only make sense for home-delivery orders (handled via Delivery Management). */
+    private static final java.util.Set<OrderStatus> DELIVERY_ONLY_STATUSES = java.util.EnumSet.of(
+            OrderStatus.READY_FOR_DELIVERY, OrderStatus.OUT_FOR_DELIVERY, OrderStatus.DELIVERED);
+
+    /** Statuses that only make sense for store-pickup orders (Sales & Billing only). */
+    private static final java.util.Set<OrderStatus> PICKUP_ONLY_STATUSES = java.util.EnumSet.of(
+            OrderStatus.READY_FOR_PICKUP, OrderStatus.COLLECTED);
+
     public OnlineOrderResponse updateOrderStatus(Integer id, OrderStatus newStatus) {
         OnlineOrder order = orderRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Online order not found with id " + id));
 
+        boolean isPickup = FULFILLMENT_STORE_PICKUP.equals(order.getFulfillmentType());
+
+        // The workflow depends on how the customer chose to receive the order
+        if (isPickup && DELIVERY_ONLY_STATUSES.contains(newStatus)) {
+            throw new BusinessException("Status " + newStatus + " is not valid for a store pickup order. "
+                    + "Use READY_FOR_PICKUP and COLLECTED instead.");
+        }
+        if (!isPickup && PICKUP_ONLY_STATUSES.contains(newStatus)) {
+            throw new BusinessException("Status " + newStatus + " is only valid for store pickup orders.");
+        }
+
         order.setStatus(newStatus);
         order.setUpdatedAt(LocalDateTime.now());
 
-        if (newStatus == OrderStatus.OUT_FOR_DELIVERY && order.getDelivery() != null) {
-            order.getDelivery().setStatus(DeliveryStatus.OUT_FOR_DELIVERY);
-        } else if (newStatus == OrderStatus.DELIVERED) {
-            if (order.getDelivery() != null) {
-                order.getDelivery().setStatus(DeliveryStatus.DELIVERED);
+        if (!isPickup) {
+            // Home delivery: keep the Delivery record in step with the order
+            if (newStatus == OrderStatus.OUT_FOR_DELIVERY && order.getDelivery() != null) {
+                order.getDelivery().setStatus(DeliveryStatus.OUT_FOR_DELIVERY);
+            } else if (newStatus == OrderStatus.DELIVERED) {
+                if (order.getDelivery() != null) {
+                    order.getDelivery().setStatus(DeliveryStatus.DELIVERED);
+                    order.getDelivery().setDeliveredAt(LocalDateTime.now());
+                }
+                settleCashPayment(order);
+                awardLoyaltyPoints(order);
             }
+        } else if (newStatus == OrderStatus.COLLECTED) {
+            // Store pickup: the sale is completed at the counter - billing + loyalty only
+            settleCashPayment(order);
             awardLoyaltyPoints(order);
         }
 
         return toDto(orderRepository.save(order));
+    }
+
+    /**
+     * Cash is collected on handover (at the door for delivery, at the counter for pickup),
+     * so a still-pending cash payment is completed at that moment.
+     */
+    private void settleCashPayment(OnlineOrder order) {
+        Payment payment = order.getPayment();
+        if (payment != null
+                && payment.getPaymentMethod() == PaymentMethod.CASH_ON_DELIVERY
+                && payment.getStatus() == PaymentStatus.PENDING) {
+            payment.setStatus(PaymentStatus.COMPLETED);
+            payment.setCompletedAt(LocalDateTime.now());
+        }
     }
 
     @Transactional
@@ -557,6 +614,12 @@ public class OnlineOrderService {
         }
 
         dto.setLoyaltyPointsAwarded(o.getLoyaltyPointsAwarded());
+
+        // Store-pickup orders never have a delivery record
+        if (o.getDelivery() != null) {
+            dto.setDeliveryId(o.getDelivery().getId());
+            dto.setDeliveryStatus(o.getDelivery().getStatus() != null ? o.getDelivery().getStatus().name() : null);
+        }
 
         return dto;
     }

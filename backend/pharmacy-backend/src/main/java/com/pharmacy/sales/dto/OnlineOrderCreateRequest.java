@@ -15,6 +15,9 @@ public class OnlineOrderCreateRequest {
 
     private Integer promotionId;
 
+    // Alternative to promotionId: the coupon code the customer applied (resolved server-side)
+    private String couponCode;
+
     private String notes;
 
     private String fulfillmentType; // DELIVERY | STORE_PICKUP
@@ -39,6 +42,9 @@ public class OnlineOrderCreateRequest {
 
     public Integer getPromotionId() { return promotionId; }
     public void setPromotionId(Integer promotionId) { this.promotionId = promotionId; }
+
+    public String getCouponCode() { return couponCode; }
+    public void setCouponCode(String couponCode) { this.couponCode = couponCode; }
 
     public String getNotes() { return notes; }
     public void setNotes(String notes) { this.notes = notes; }
