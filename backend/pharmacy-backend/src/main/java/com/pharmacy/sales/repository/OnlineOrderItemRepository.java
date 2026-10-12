@@ -10,4 +10,5 @@ import java.util.List;
 public interface OnlineOrderItemRepository extends JpaRepository<OnlineOrderItem, Integer> {
     List<OnlineOrderItem> findByOnlineOrderId(Integer onlineOrderId);
     List<OnlineOrderItem> findByProductId(Integer productId);
+    boolean existsByProductId(Integer productId);
 }

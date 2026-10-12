@@ -14,7 +14,7 @@ public class Prescription {
     private Integer id;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "online_order_id", nullable = false, unique = true)
+    @JoinColumn(name = "online_order_id", unique = true)
     private OnlineOrder onlineOrder;
 
     @ManyToOne(fetch = FetchType.LAZY)

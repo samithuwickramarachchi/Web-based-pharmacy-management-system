@@ -109,20 +109,22 @@ public class PrescriptionService {
                 throw new AccessDeniedException("Cannot upload prescription for another customer");
             }
 
-            PrescriptionResponse dto = new PrescriptionResponse();
-            dto.setFilePath(storedPath);
-            dto.setOriginalFilename(file.getOriginalFilename());
-            dto.setStatus(PrescriptionStatus.PENDING);
-            dto.setUploadedAt(LocalDateTime.now());
-            if (customer != null) {
-                dto.setCustomerId(customer.getId());
-                dto.setCustomerName(customer.getFirstName() + " " + customer.getLastName());
+            if (customer == null) {
+                throw new BusinessException("Customer profile not found for this upload");
             }
 
-            activityLogService.log(currentUserId, "STANDALONE_PRESCRIPTION_UPLOADED", "Prescription", null,
+            Prescription prescription = new Prescription();
+            prescription.setCustomer(customer);
+            prescription.setFilePath(storedPath);
+            prescription.setOriginalFilename(file.getOriginalFilename() != null ? file.getOriginalFilename() : "prescription");
+            prescription.setStatus(PrescriptionStatus.PENDING);
+            prescription.setUploadedAt(LocalDateTime.now());
+            Prescription saved = prescriptionRepository.save(prescription);
+
+            activityLogService.log(currentUserId, "STANDALONE_PRESCRIPTION_UPLOADED", "Prescription", saved.getId(),
                     "Uploaded standalone prescription: " + file.getOriginalFilename(), null);
 
-            return dto;
+            return toDto(saved);
         }
     }
 
@@ -256,6 +258,13 @@ public class PrescriptionService {
         Prescription prescription = prescriptionRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Prescription not found with id " + id));
 
+        if (req.getStatus() == null || req.getStatus() == PrescriptionStatus.PENDING) {
+            throw new BusinessException("Prescription must be either APPROVED or REJECTED");
+        }
+        if (prescription.getStatus() != PrescriptionStatus.PENDING) {
+            throw new BusinessException("This prescription has already been " + prescription.getStatus().name().toLowerCase());
+        }
+
         User reviewer = null;
         if (reviewerUsername != null && !reviewerUsername.isBlank()) {
             reviewer = userRepository.findByUsernameOrEmailWithRole(reviewerUsername).orElse(null);
@@ -280,18 +289,23 @@ public class PrescriptionService {
                     orderRepository.save(order);
                 }
             } else if (req.getStatus() == PrescriptionStatus.REJECTED) {
-                order.setStatus(OrderStatus.CANCELLED);
-                orderRepository.save(order);
+                if (order.getStatus() == OrderStatus.AWAITING_PRESCRIPTION
+                        || order.getStatus() == OrderStatus.PENDING_PAYMENT) {
+                    order.setStatus(OrderStatus.CANCELLED);
+                    orderRepository.save(order);
+                }
             }
         }
 
         Prescription saved = prescriptionRepository.save(prescription);
+        PrescriptionResponse response = toDto(saved);
 
+        // Audit logging runs in its own transaction and can never roll back this review.
         activityLogService.log(reviewer,
                 req.getStatus() == PrescriptionStatus.APPROVED ? "PRESCRIPTION_APPROVED" : "PRESCRIPTION_REJECTED",
                 "Prescription", id, "Prescription " + req.getStatus() + ". Notes: " + req.getReviewNotes(), null);
 
-        return toDto(saved);
+        return response;
     }
 
     // ─── Mapping ─────────────────────────────────────────────────────────────────
